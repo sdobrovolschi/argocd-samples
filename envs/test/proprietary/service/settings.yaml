@@ -1,0 +1,27 @@
+env:
+  JDK_JAVA_OPTIONS: >-
+    -Duser.timezone=UTC
+    -Xms250m -Xmx512m
+  SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE: 10s
+
+pod:
+  terminationGracePeriodSeconds: 15
+
+container:
+  resources:
+    limits:
+      cpu: 750m
+      memory: 640Mi
+    requests:
+      cpu: 250m
+      memory: 320Mi
+  livenessProbe:
+    initialDelaySeconds: 70
+    timeoutSeconds: 1
+    periodSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    initialDelaySeconds: 60
+    timeoutSeconds: 1
+    periodSeconds: 5
+    failureThreshold: 3
