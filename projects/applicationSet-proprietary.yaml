@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  name: system-proprietary
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/sdobrovolschi/argocd-samples.git
+        revision: HEAD
+        files:
+          - path: envs/**/proprietary/**/config.yaml
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/managed-by: argocd-autopilot
+        app.kubernetes.io/name: '{{ .appName }}'
+      name: '{{ .appName }}'
+      namespace: argocd
+    spec:
+      project: system
+      source:
+        repoURL: '{{ .chart.repository }}'
+        path: charts/{{ .chart.name }}
+        targetRevision: '{{ .chart.version }}'
+        helm:
+          valueFiles:
+          - ../../{{ .path.path }}/replicas.yaml
+          - ../../{{ .path.path }}/settings.yaml
+          - ../../{{ .path.path }}/version.yaml
+      destination:
+        name: '{{ .clusterName }}'
+        namespace: '{{ .namespace }}'
+      ignoreDifferences:
+        - kind: Secret
+          name: '*'
+          jsonPointers:
+            - /data
+            - /stringData
+      syncPolicy:
+        automated:
+          allowEmpty: true
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - ApplyOutOfSyncOnly=true
+          - CreateNamespace=true
+          - FailOnSharedResource=true
+          - PruneLast=true
