@@ -1,0 +1,7 @@
+clusterName: in-cluster
+namespace: prod
+chart:
+  repository: https://github.com/sdobrovolschi/argocd-samples.git
+  name: service
+  version: HEAD
+appName: prod-service
