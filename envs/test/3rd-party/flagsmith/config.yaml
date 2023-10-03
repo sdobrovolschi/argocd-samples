@@ -1,0 +1,7 @@
+clusterName: in-cluster
+namespace: test
+chart:
+  repository: https://flagsmith.github.io/flagsmith-charts/
+  name: flagsmith
+  version: 0.22.1
+appName: test-flagsmith
