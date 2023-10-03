@@ -1,0 +1,4 @@
+api:
+  image:
+    repository: flagsmith/flagsmith-api
+    tag: 2.57.0
