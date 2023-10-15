@@ -1,0 +1,9 @@
+api:
+  extraEnv:
+    USE_POSTGRES_FOR_ANALYTICS: true
+  extraEnvFromSecret:
+    ANALYTICS_DATABASE_URL:
+      secretName: test-flagsmith
+      secretKey: DATABASE_URL
+influxdb2:
+  enabled: false
