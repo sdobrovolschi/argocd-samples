@@ -1,7 +1,7 @@
 env:
   JDK_JAVA_OPTIONS: >-
     -Duser.timezone=UTC
-    -Xms250m -Xmx512m
+    -XX:MaxRAMPercentage=75
   SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE: 10s
 
 pod:
@@ -10,11 +10,11 @@ pod:
 container:
   resources:
     limits:
-      cpu: 750m
-      memory: 640Mi
+      cpu: 500m
+      memory: 512Mi
     requests:
-      cpu: 250m
-      memory: 320Mi
+      cpu: 50m
+      memory: 256Mi
   livenessProbe:
     initialDelaySeconds: 70
     timeoutSeconds: 1
