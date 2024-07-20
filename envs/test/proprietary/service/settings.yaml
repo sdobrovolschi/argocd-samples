@@ -1,10 +1,9 @@
 env:
   JDK_JAVA_OPTIONS: >-
-    -XX:ActiveProcessorCount=8
+    -XX:ActiveProcessorCount=2
     -XX:MaxRAMPercentage=75
-#    -XX:-UseContainerSupport
-#    -XX:+UseParallelGC
-    -Xlog:gc=info:stdout:uptime,level,tags
+    -XX:+UseG1GC
+    -Xlog:gc=info:stdout:uptime,level,tid,tags
     -Duser.timezone=UTC
   SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE: 10s
 
