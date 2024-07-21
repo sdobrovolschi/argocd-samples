@@ -3,13 +3,12 @@ configMapGenerator:
 - behavior: merge
   literals:
   - |
-    repository.credentials=- passwordSecret:
-        key: git_token
-        name: autopilot-secret
-      url: https://github.com/
-      usernameSecret:
-        key: git_username
-        name: autopilot-secret
+    resource.customizations=
+      networking.k8s.io/Ingress:
+        health.lua: |
+          hs = {}
+          hs.status = "Healthy"
+          return hs
   name: argocd-cm
 kind: Kustomization
 namespace: argocd
