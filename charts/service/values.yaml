@@ -44,4 +44,4 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: acme-prod
     nginx.ingress.kubernetes.io/service-upstream: "true"
-  host: localhost
+  host: test.domain.name
