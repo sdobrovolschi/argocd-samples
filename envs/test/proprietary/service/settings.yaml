@@ -28,3 +28,6 @@ container:
     timeoutSeconds: 1
     periodSeconds: 5
     failureThreshold: 3
+
+ingress:
+  host: test.domain.name
