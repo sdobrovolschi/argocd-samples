@@ -1,0 +1,81 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  annotations:
+    argocd-autopilot.argoproj-labs.io/default-dest-server: https://kubernetes.default.svc
+    argocd.argoproj.io/sync-options: PruneLast=true
+    argocd.argoproj.io/sync-wave: "-2"
+  name: subsystem
+  namespace: argocd
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  description: subsystem
+  destinations:
+  - namespace: '*'
+    server: '*'
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  sourceRepos:
+  - '*'
+status: {}
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  name: subsystem
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: [ "missingkey=error" ]
+  generators:
+    - git:
+        repoURL: https://github.com/sdobrovolschi/gitops-argo.git
+        revision: HEAD
+        files:
+          - path: envs/**/config.yaml
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/managed-by: argocd-autopilot
+        app.kubernetes.io/name: '{{ .appName }}'
+      name: '{{ .appName }}'
+      namespace: argocd
+    spec:
+      project: system
+      sources:
+        - repoURL: '{{ .chart.repository }}'
+          chart: '{{ .chart.name }}'
+          targetRevision: '{{ .chart.version }}'
+          helm:
+            valueFiles:
+              - $values/{{ .path.path }}/replicas.yaml
+              - $values/{{ .path.path }}/settings.yaml
+              - $values/{{ .path.path }}/version.yaml
+        - repoURL: https://github.com/sdobrovolschi/gitops-argo.git
+          targetRevision: HEAD
+          ref: values
+      destination:
+        name: '{{ .clusterName }}'
+        namespace: '{{ .namespace }}'
+      ignoreDifferences:
+        - kind: Secret
+          name: '*'
+          jsonPointers:
+            - /data
+            - /stringData
+      syncPolicy:
+        automated:
+          allowEmpty: true
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - ApplyOutOfSyncOnly=true
+          - CreateNamespace=true
+          - FailOnSharedResource=true
+          - PruneLast=true
