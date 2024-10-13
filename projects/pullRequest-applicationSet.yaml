@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  name: system-config-pull-request
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: [ "missingkey=error" ]
+  generators:
+    - matrix:
+        generators:
+          - pullRequest:
+              github:
+                owner: sdobrovolschi
+                repo: gitops-argo
+                tokenRef:
+                  secretName: autopilot-secret
+                  key: git_token
+              requeueAfterSeconds: 180
+          - git:
+              repoURL: https://github.com/sdobrovolschi/gitops-argo.git
+              revision: '{{ .head_sha }}'
+              files:
+                - path: envs/stage/**/config.yaml
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/managed-by: argocd-autopilot
+        app.kubernetes.io/name: '{{ .appName }}-{{ .branch }}'
+      annotations:
+        notifications.argoproj.io/subscribe.on-sync-succeeded.github: ""
+      name: '{{ .appName }}-{{ .branch }}'
+      namespace: argocd
+    spec:
+      project: system
+      sources:
+        - repoURL: '{{ .chart.repository }}'
+          chart: '{{ .chart.name }}'
+          targetRevision: '{{ .chart.version }}'
+          helm:
+            valueFiles:
+              - $values/{{ .path.path }}/replicas.yaml
+              - $values/{{ .path.path }}/settings.yaml
+              - $values/{{ .path.path }}/version.yaml
+            parameters:
+              - name: "ingress.hosts[0].host"
+                value: '{{ .branch }}-system.127.0.0.1.nip.io'
+        - repoURL: https://github.com/sdobrovolschi/gitops-argo.git
+          targetRevision: '{{ .head_sha }}'
+          ref: values
+      destination:
+        name: '{{ .clusterName }}'
+        namespace: 'preview-{{ .branch }}'
+      ignoreDifferences:
+        - kind: Secret
+          name: '*'
+          jsonPointers:
+            - /data
+            - /stringData
+      syncPolicy:
+        automated:
+          allowEmpty: true
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - ApplyOutOfSyncOnly=true
+          - CreateNamespace=true
+          - FailOnSharedResource=true
+          - PruneLast=true
