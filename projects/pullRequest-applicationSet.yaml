@@ -23,7 +23,7 @@ spec:
               repoURL: https://github.com/sdobrovolschi/gitops-argo.git
               revision: '{{ .head_sha }}'
               files:
-                - path: envs/stage/**/config.yaml
+                - path: envs/prod/**/config.yaml
   template:
     metadata:
       labels:
@@ -47,6 +47,8 @@ spec:
             parameters:
               - name: "ingress.hosts[0].host"
                 value: '{{ .branch }}-system.127.0.0.1.nip.io'
+              - name: "env.SPRING_DATASOURCE_URL"
+                value: 'jdbc:postgresql://postgresql-{{ .branch }}.preview-{{ .branch }}.svc.cluster.local:5432/carts'
         - repoURL: https://github.com/sdobrovolschi/gitops-argo.git
           targetRevision: '{{ .head_sha }}'
           ref: values
