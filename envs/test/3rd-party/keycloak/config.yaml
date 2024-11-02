@@ -1,7 +1,0 @@
-clusterName: in-cluster
-namespace: test
-chart:
-  repository: ghcr.io/sdobrovolschi/keycloakx
-  name: keycloakx
-  version: 2.2.2
-appName: test-keycloak

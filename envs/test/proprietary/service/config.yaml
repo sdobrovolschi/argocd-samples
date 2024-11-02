@@ -1,7 +1,0 @@
-clusterName: in-cluster
-namespace: test
-chart:
-  repository: https://github.com/sdobrovolschi/argocd-samples.git
-  name: service
-  version: HEAD
-appName: test-service
